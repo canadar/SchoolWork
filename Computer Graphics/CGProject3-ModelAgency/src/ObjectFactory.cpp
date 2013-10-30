@@ -111,6 +111,8 @@ ObjectNode* ObjectFactory::buildCylinder(int pSlices)
     //    - Your vertices must wind counter-clockwise and normals must point outwards
 
     // Process the vertex, normal and face data just added to the object
+
+    //Will be building cylinders here: but how???????
     if(!lObject->parseRawData())
     {
         printf("There was an error creating the cylinder node object.\n");
