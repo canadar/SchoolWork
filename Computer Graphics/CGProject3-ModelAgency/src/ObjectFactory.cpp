@@ -111,9 +111,45 @@ ObjectNode* ObjectFactory::buildCylinder(int pSlices)
     //    - Your vertices must wind counter-clockwise and normals must point outwards
 
     // Process the vertex, normal and face data just added to the object
+    //TOP CAP
+    float theta = 0;
+    for(int i = 0; i < pSlices; i++){
+        theta = 2.0f * 3.1415926f * float(i) / float(pSlices);
+        float x = 1.0 * cosf(theta);
+        float y = 1.0 * sinf(theta);
+        lObject->addVertex(x,1,y);//vertices # 0 - pSlices
+    }
+    lObject->addNormal(0.0,1.0,0.0);//Bottom #0
+    for(int j = 0; j < pSlices; j++){
+        lObject->addTriangle(j,0,j+1,0,0,0);
+    }
 
-    //Will be building cylinders here: but how???????
-    //Git Test
+    //BUILD BOTTOM CAP
+    for(int i = pSlices-1; i < 2*pSlices; i++){
+        theta = 2.0f * 3.1415926f * float(i) / float(pSlices);
+        float x = 1.0 * cosf(theta);
+        float y = 1.0 * sinf(theta);
+        lObject->addVertex(x,-1,y);//Vertices #
+    }
+    lObject->addNormal(0.0,-1.0,0.0);//Bottom #1
+    for(int j = pSlices; j < 2*pSlices; j++){
+        lObject->addTriangle(j,0,j+1,1,1,1);
+    }
+
+    //BUILD CYLINDRICAL PART OF CYLINDER
+    lObject->addNormal(0.0,0.0,1.0);
+    lObject->addNormal(0.0,0.0,-1.0);
+    for(int x = 0; x < pSlices; x++){
+        if(x == 0){
+            lObject->addTriangle(0,pSlices-1, pSlices,2,2,2);
+            lObject->addTriangle(0,pSlices,pSlices+2,2,2,2);
+        }
+        else{
+            lObject->addTriangle(x,x-1,pSlices+x,2,2,2);
+            lObject->addTriangle(x,pSlices+x,pSlices+x+1,2,2,2);
+        }
+    }
+
     if(!lObject->parseRawData())
     {
         printf("There was an error creating the cylinder node object.\n");
@@ -149,6 +185,17 @@ ObjectNode* ObjectFactory::buildSphere(int pSlices, int pStacks)
     //    - Your vertices must wind counter-clockwise and normals must point outwards
 
     // Process the vertex, normal and face data just added to the object
+
+    float theta = 0;
+    float phi = 0;
+    lObject->addVertex(0,1,0);//Vertex 1: The North Pole
+    lObject->addVertex(0,-1,0);//Vertex 2: The South Pole
+
+    for(int i = 0; i < pStacks; i++){
+
+    }
+
+
     if(!lObject->parseRawData())
     {
         printf("There was an error creating the sphere node object.\n");
@@ -158,7 +205,6 @@ ObjectNode* ObjectFactory::buildSphere(int pSlices, int pStacks)
         delete lObject;
         return NULL;
     }
-
     return lObject;
 }
 
