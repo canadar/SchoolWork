@@ -294,6 +294,11 @@ void ObjectNode::draw(QGLShaderProgram *pShader) const
     // TODO: Apply the transformation for this object to the current OpenGL Matrix
 
     // Draw the node mesh
+    glPushMatrix();
+    glTranslatef(mTx,mTy,mTz);
+    glRotatef(mRx,mRy,mRz,mThetaInDegrees);
+    glScalef(mSx,mSy,mSz);
+
     if(mMtrl != NULL && pShader != NULL) mMtrl->TellOpenGL(pShader, true);
     if(mMeshGroup == NULL)
     {
@@ -314,6 +319,7 @@ void ObjectNode::draw(QGLShaderProgram *pShader) const
 
     // TODO: Restore the transformation matrix to how it was
     // before this object.
+    glPopMatrix();
 }
 
 // Draw this object and all of its children
@@ -324,6 +330,11 @@ void ObjectNode::drawNormals() const
     // TODO: Apply the transformation for this object to the current OpenGL Matrix
 
     // Draw the node mesh
+    glPushMatrix();
+    glTranslatef(mTx,mTy,mTz);
+    glRotatef(mRx,mRy,mRz,mThetaInDegrees);
+    glScalef(mSx,mSy,mSz);
+
     if(mMeshGroup == NULL)
     {
         if(!mDontDrawMesh) mNodeMesh->drawNormals();
@@ -340,4 +351,5 @@ void ObjectNode::drawNormals() const
 
     // TODO: Restore the transformation matrix to how it was
     // before this object.
+    glPopMatrix();
 }

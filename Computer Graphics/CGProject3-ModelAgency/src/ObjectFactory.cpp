@@ -111,38 +111,45 @@ ObjectNode* ObjectFactory::buildCylinder(int pSlices)
     //    - Your vertices must wind counter-clockwise and normals must point outwards
 
     // Process the vertex, normal and face data just added to the object
-    //TOP CAP
     float theta = 0;
-    for(int i = 0; i < pSlices; i++){
+    //TOP CAP
+
+    lObject->addVertex(0.0,1.0,0.0);//Vertex 0
+    for(int i = 1; i < pSlices+1; i++){
         theta = 2.0f * 3.1415926f * float(i) / float(pSlices);
         float x = 1.0 * cosf(theta);
         float y = 1.0 * sinf(theta);
         lObject->addVertex(x,1,y);//vertices # 0 - pSlices
     }
     lObject->addNormal(0.0,1.0,0.0);//Bottom #0
-    for(int j = 0; j < pSlices; j++){
-        lObject->addTriangle(j,0,j+1,0,0,0);
+    for(int j = 1; j < pSlices; j++){
+        lObject->addTriangle(0,j,j+1,0,0,0);
     }
+    lObject->addTriangle(0,pSlices,1,0,0,0);
+
 
     //BUILD BOTTOM CAP
-    for(int i = pSlices-1; i < 2*pSlices; i++){
+    lObject->addVertex(0.0,-1.0,0.0);//Vertex pSlice +1
+    for(int i = pSlices+2; i < 2*pSlices+2; i++){
         theta = 2.0f * 3.1415926f * float(i) / float(pSlices);
         float x = 1.0 * cosf(theta);
         float y = 1.0 * sinf(theta);
-        lObject->addVertex(x,-1,y);//Vertices #
+        lObject->addVertex(x,-1,y);
     }
-    lObject->addNormal(0.0,-1.0,0.0);//Bottom #1
-    for(int j = pSlices; j < 2*pSlices; j++){
-        lObject->addTriangle(j,0,j+1,1,1,1);
+    lObject->addNormal(0.0,-1.0,0.0);//Bottom #0
+    for(int j = pSlices+2; j < lObject->getVertexCount()-1; j++){
+        lObject->addTriangle(pSlices+1,j,j+1,1,1,1);
     }
+    lObject->addTriangle(pSlices+1,2*pSlices+1,pSlices+2,1,1,1);
+
 
     //BUILD CYLINDRICAL PART OF CYLINDER
     lObject->addNormal(0.0,0.0,1.0);
     lObject->addNormal(0.0,0.0,-1.0);
-    for(int x = 0; x < pSlices; x++){
-        if(x == 0){
-            lObject->addTriangle(0,pSlices-1, pSlices,2,2,2);
-            lObject->addTriangle(0,pSlices,pSlices+2,2,2,2);
+    for(int x = 1; x < pSlices+1; x++){
+        if(x == 1){
+           lObject->addTriangle(1,2*pSlices+1, pSlices,3,3,3);
+           lObject->addTriangle(1,pSlices+2,2*pSlices+1,3,3,3);
         }
         else{
             lObject->addTriangle(x,x-1,pSlices+x,2,2,2);
@@ -220,31 +227,59 @@ ObjectNode* ObjectFactory::buildSculpture()
     //    - Use addChild on lObject to put the sub-parts together into one sculpture
     //    - Be sure to leave in the allocation above but you may not need to call parseRawData below
 
-    // HERE IS AN EXAMPLE TO WORK FROM, DELETE THIS AND MAKE YOUR OWN!!!
-    QMessageBox::information(NULL, "Teacher's Example", "This is the example sculpture.  You must replace it with your own.\n\n"
-                         "Note that it will not look correct until you implement hierarchical transformations.", QMessageBox::Ok);
 
-    ObjectNode *cube1, *cube2, *cube3, *cube4;
-    cube1 = buildCube();
-    cube1->setTranslate(-1.1, -1.1, 0);
-    cube1->setScale(0.8, 0.8, 0.2);
+    //Building the Base
+    ObjectNode *base;
+    base = buildCylinder(40);
+    base->setName("Base");
+    base->setScale(2.35,0.05,2.35);
 
-    cube2 = buildCube();
-    cube2->setTranslate( 1.1, -1.1, 0);
-    cube2->setScale(0.8, 0.8, 0.2);
 
-    cube3 = buildCube();
-    cube3->setTranslate( 1.1,  1.1, 0);
-    cube3->setScale(0.8, 0.8, 0.2);
+    //Poles
 
-    cube4 = buildCube();
-    cube4->setTranslate(-1.1,  1.1, 0);
-    cube4->setScale(0.8, 0.8, 0.2);
 
-    lObject->addChild(cube1);
-    lObject->addChild(cube2);
-    lObject->addChild(cube3);
-    lObject->addChild(cube4);
+
+    //Bell Connector
+    ObjectNode *connector;
+    connector = buildCylinder(10);
+    connector->setName("Connector");
+    connector->setScale(0.15,0.15,0.15);
+    connector->setTranslate(0.0,2.0,0.0);
+
+    //Benches:
+     ObjectNode* benchSeat1; //Bench 1
+     benchSeat1 = buildCube();
+     benchSeat1->setScale(0.06,0.81,0.17);
+     benchSeat1->setTranslate(0.68,4.78,0);
+
+     ObjectNode* benchSeat2; //Bench 2
+     benchSeat2 = buildCube();
+     benchSeat2->setScale(0.06,0.81,0.17);
+     benchSeat2->setTranslate(-0.68,4.78,0);
+
+     ObjectNode* benchSeat3; //Bench 3
+     benchSeat3 = buildCube();
+     benchSeat3->setScale(0.06,0.81,0.17);
+     benchSeat3->setTranslate(0,4.78,0.68);
+     benchSeat3->setRotate(90,0,1,0);
+
+     ObjectNode* benchSeat4; //Bench 4
+     benchSeat4 = buildCube();
+     benchSeat4->setScale(0.06,0.81,0.17);
+     benchSeat4->setTranslate(0,4.78,-0.68);
+     benchSeat4->setRotate(90,0,1,0);
+
+
+    //Add Objects to the sculpture
+     //Add benches to the base
+     base->addChild(benchSeat1);
+     base->addChild(benchSeat2);
+     base->addChild(benchSeat3);
+     base->addChild(benchSeat4);
+
+
+    lObject->addChild(base);
+    lObject->addChild(connector);
     // END OF EXAMPLE
 
     // Only do this if you add vertices, normals or faces to the lObject itself (not required)
