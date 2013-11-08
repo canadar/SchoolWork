@@ -296,7 +296,7 @@ void ObjectNode::draw(QGLShaderProgram *pShader) const
     // Draw the node mesh
     glPushMatrix();
     glTranslatef(mTx,mTy,mTz);
-    glRotatef(mRx,mRy,mRz,mThetaInDegrees);
+    glRotatef(mThetaInDegrees,mRx,mRy,mRz);
     glScalef(mSx,mSy,mSz);
 
     if(mMtrl != NULL && pShader != NULL) mMtrl->TellOpenGL(pShader, true);

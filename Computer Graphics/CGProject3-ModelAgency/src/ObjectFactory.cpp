@@ -101,16 +101,6 @@ ObjectNode* ObjectFactory::buildCylinder(int pSlices)
     ObjectNode* lObject = new ObjectNode();
     lObject->setName(QString("Cylinder %1").arg(lsCylinderCount));
     lsCylinderCount++;
-
-    // TODO: Create a node object for a unit cylinder using the subdivision parameters above
-    //    - Base circle should be at Y = -1 and have a radius of 1
-    //    - Top circle should be at Y = 1 and also have a radius of 1
-    //    - See buildCube for an example of how to use the ObjectNode object lObject
-    //    - Use addVertex, addNormal and addTriangle
-    //    - Be sure to leave in the allocation above and the call to parseRawData() below
-    //    - Your vertices must wind counter-clockwise and normals must point outwards
-
-    // Process the vertex, normal and face data just added to the object
     float theta = 0;
     //TOP CAP
 
@@ -121,11 +111,10 @@ ObjectNode* ObjectFactory::buildCylinder(int pSlices)
         float y = 1.0 * sinf(theta);
         lObject->addVertex(x,1,y);//vertices # 0 - pSlices
     }
-    lObject->addNormal(0.0,1.0,0.0);//Bottom #0
     for(int j = 1; j < pSlices; j++){
-        lObject->addTriangle(0,j,j+1,0,0,0);
+        lObject->addTriangle(0,j,j+1,0,j,j+1);
     }
-    lObject->addTriangle(0,pSlices,1,0,0,0);
+    lObject->addTriangle(0,pSlices,1,0,pSlices,1);
 
 
     //BUILD BOTTOM CAP
@@ -136,27 +125,23 @@ ObjectNode* ObjectFactory::buildCylinder(int pSlices)
         float y = 1.0 * sinf(theta);
         lObject->addVertex(x,-1,y);
     }
-    lObject->addNormal(0.0,-1.0,0.0);//Bottom #0
     for(int j = pSlices+2; j < lObject->getVertexCount()-1; j++){
-        lObject->addTriangle(pSlices+1,j,j+1,1,1,1);
+        lObject->addTriangle(pSlices+1,j,j+1,pSlices+1,j,j+1);
     }
-    lObject->addTriangle(pSlices+1,2*pSlices+1,pSlices+2,1,1,1);
+    lObject->addTriangle(pSlices+1,2*pSlices+1,pSlices+2,pSlices+1,2*pSlices,pSlices+2);
 
 
     //BUILD CYLINDRICAL PART OF CYLINDER
-    lObject->addNormal(0.0,0.0,1.0);
-    lObject->addNormal(0.0,0.0,-1.0);
     for(int x = 1; x < pSlices+1; x++){
         if(x == 1){
-           lObject->addTriangle(1,2*pSlices+1, pSlices,3,3,3);
-           lObject->addTriangle(1,pSlices+2,2*pSlices+1,3,3,3);
+           lObject->addTriangle(1,2*pSlices+1, pSlices,1,2*pSlices+1,pSlices);
+           lObject->addTriangle(1,pSlices+2,2*pSlices+1,1,pSlices+2,2*pSlices+1);
         }
         else{
-            lObject->addTriangle(x,x-1,pSlices+x,2,2,2);
-            lObject->addTriangle(x,pSlices+x,pSlices+x+1,2,2,2);
+            lObject->addTriangle(x,x-1,pSlices+x,x,x-1,pSlices+x);
+            lObject->addTriangle(x,pSlices+x,pSlices+x+1,x,pSlices+x,pSlices+x+1);
         }
-    }
-
+    }    
     if(!lObject->parseRawData())
     {
         printf("There was an error creating the cylinder node object.\n");
@@ -220,23 +205,12 @@ ObjectNode* ObjectFactory::buildSculpture()
     // Allocate a new node object
     ObjectNode* lObject = new ObjectNode();
     lObject->setName("Sculpture");
-
-    // TODO: Create a node object for the sculpture indicated in the instructions (should be hierarchical)
-    //    - Make other methods to construct the individual parts as actual meshes (similar to buildCube())
-    //    - Set appropriate names and then transform them as needed
-    //    - Use addChild on lObject to put the sub-parts together into one sculpture
-    //    - Be sure to leave in the allocation above but you may not need to call parseRawData below
-
-
     //Building the Base
     ObjectNode *base;
     base = buildCylinder(40);
     base->setName("Base");
     base->setScale(2.35,0.05,2.35);
-
-
-    //Poles
-
+    //Support Structures
 
 
     //Bell Connector
@@ -246,28 +220,82 @@ ObjectNode* ObjectFactory::buildSculpture()
     connector->setScale(0.15,0.15,0.15);
     connector->setTranslate(0.0,2.0,0.0);
 
+    //Building the Bell
+    ObjectNode *bell[40];
+    for(int i = 0; i < 40; i++){
+        bell[i] = buildCylinder(10);
+        bell[i]->setScale(0.15*i,0.12,0.15*i);
+        bell[i]->setTranslate(0.0,-0.12*i,0.0);
+        connector->addChild(bell[i]);
+    }
     //Benches:
      ObjectNode* benchSeat1; //Bench 1
      benchSeat1 = buildCube();
      benchSeat1->setScale(0.06,0.81,0.17);
      benchSeat1->setTranslate(0.68,4.78,0);
 
+     //Bench 1 Legs
+     ObjectNode* benchLeg1;
+     ObjectNode* benchLeg2;
+     benchLeg1 = buildCube();
+     benchLeg2 = buildCube();
+     benchLeg1->setScale(0.48,2.42,0.22);
+     benchLeg2->setScale(0.48,2.42,0.22);
+     benchLeg1->setTranslate(0.00,-2.37,-0.65);
+     benchLeg2->setTranslate(0.00,-2.09,0.65);
+     benchSeat1->addChild(benchLeg1);
+     benchSeat1->addChild(benchLeg2);
+
      ObjectNode* benchSeat2; //Bench 2
      benchSeat2 = buildCube();
      benchSeat2->setScale(0.06,0.81,0.17);
      benchSeat2->setTranslate(-0.68,4.78,0);
+     //Bench 2 Legs
+     ObjectNode* benchLeg3;
+     ObjectNode* benchLeg4;
+     benchLeg3 = buildCube();
+     benchLeg4 = buildCube();
+     benchLeg3->setScale(0.48,2.42,0.22);
+     benchLeg4->setScale(0.48,2.42,0.22);
+     benchLeg3->setTranslate(0.00,-2.37,-0.65);
+     benchLeg4->setTranslate(0.00,-2.09,0.65);
+     benchSeat2->addChild(benchLeg1);
+     benchSeat2->addChild(benchLeg2);
 
      ObjectNode* benchSeat3; //Bench 3
      benchSeat3 = buildCube();
      benchSeat3->setScale(0.06,0.81,0.17);
      benchSeat3->setTranslate(0,4.78,0.68);
      benchSeat3->setRotate(90,0,1,0);
+     //Bench 3 Legs
+     ObjectNode* benchLeg5;
+     ObjectNode* benchLeg6;
+     benchLeg5 = buildCube();
+     benchLeg6 = buildCube();
+     benchLeg5->setScale(0.48,2.42,0.22);
+     benchLeg6->setScale(0.48,2.42,0.22);
+     benchLeg5->setTranslate(0.00,-2.37,-0.65);
+     benchLeg6->setTranslate(0.00,-2.09,0.65);
+     benchSeat3->addChild(benchLeg5);
+     benchSeat3->addChild(benchLeg6);
 
      ObjectNode* benchSeat4; //Bench 4
      benchSeat4 = buildCube();
      benchSeat4->setScale(0.06,0.81,0.17);
      benchSeat4->setTranslate(0,4.78,-0.68);
      benchSeat4->setRotate(90,0,1,0);
+
+     //Bench 4 Legs
+     ObjectNode* benchLeg7;
+     ObjectNode* benchLeg8;
+     benchLeg7 = buildCube();
+     benchLeg8 = buildCube();
+     benchLeg7->setScale(0.48,2.42,0.22);
+     benchLeg8->setScale(0.48,2.42,0.22);
+     benchLeg7->setTranslate(0.00,-2.37,-0.65);
+     benchLeg8->setTranslate(0.00,-2.09,0.65);
+     benchSeat4->addChild(benchLeg7);
+     benchSeat4->addChild(benchLeg8);
 
 
     //Add Objects to the sculpture
@@ -277,13 +305,10 @@ ObjectNode* ObjectFactory::buildSculpture()
      base->addChild(benchSeat3);
      base->addChild(benchSeat4);
 
-
+    //Add the Base and Connector parent objects to lObject
     lObject->addChild(base);
     lObject->addChild(connector);
-    // END OF EXAMPLE
 
-    // Only do this if you add vertices, normals or faces to the lObject itself (not required)
-    // Process the vertex, normal and face data just added to the object
     if(!lObject->parseRawData(false, false, true))
     {
         printf("There was an error creating the sculpture node object.\n");
@@ -303,13 +328,85 @@ ObjectNode* ObjectFactory::buildHumanoid()
     ObjectNode* lObject = new ObjectNode();
     lObject->setName("Humanoid");
 
-    // TODO: Create a node object for a humanoid character (must be hierarchical)
-    //    - Each part of your humanoid should be a primitive object that is already defined above
-    //    - Call the appropriate build method to make the individual parts
-    //    - Set appropriate names for each part and then use addChild to build an appropriate hierarchy
-    //    - Do NOT attach all parts to lObject, build and intuitive skeletal hierarchy
-    //    - Be sure to leave in the allocation above
-    //    - As with scuplture, you may not need to call parseRawData below
+    //Torso - Neck - Head
+    ObjectNode* torso = new ObjectNode();
+    torso = buildCube();
+    torso->setScale(0.29,0.50,0.38);
+    ObjectNode* neck = new ObjectNode();
+    neck = buildCube();
+    neck->setTranslate(0.00,1.18,0.00);
+    neck->setScale(0.09,0.19,0.09);
+    ObjectNode* head = new ObjectNode();
+    head = buildCube();
+    head->setTranslate(0,2.51,0);
+    head->setScale(7.64,2.00,5.40);
+
+    //Arms
+    ObjectNode* armLeft = new ObjectNode();
+    armLeft = buildCylinder(20);
+    armLeft->setTranslate(0,0.96,-1.66);
+    armLeft->setRotate(62.00,-6.03,0.00,0.17);
+    armLeft->setScale(0.31,0.83,0.18);
+    ObjectNode* armRight = new ObjectNode();
+    armRight = buildCylinder(20);
+    armRight->setTranslate(0.00, 0.96, 1.66 );
+    armRight->setRotate(62.00, 6.03,0.00 ,0.17 );
+    armRight->setScale(0.31 ,0.83 , 0.18);
+
+    //Legs
+    ObjectNode* legLeft = new ObjectNode();
+    legLeft = buildCylinder(20);
+    legLeft->setTranslate(0.78 ,-1.35 ,0.71 );
+    legLeft->setRotate(62.00,0.17 ,0.00 , 6.03);
+    legLeft->setScale(0.20 ,1.27 ,0.18 );
+
+    ObjectNode* legRight = new ObjectNode();
+    legRight = buildCylinder(20);
+    legRight->setTranslate(0.78 ,-1.56 ,-0.71 );
+    legRight->setRotate(62.00,0.17 ,0.00 , 6.03);
+    legRight->setScale(0.20 ,1.27 ,0.18 );
+
+    //Hands
+    ObjectNode* handLeft = new ObjectNode();
+    handLeft = buildCube();
+    handLeft->setTranslate(-0.09 ,1.22 ,0.02 );
+    handLeft->setScale(1.30 ,0.23 , 1.14);
+    ObjectNode* handRight = new ObjectNode();
+    handRight = buildCube();
+    handRight->setTranslate(-0.09 , 1.22, 0.02);
+    handRight->setScale(1.30 ,0.23 ,1.14 );
+
+    //Feet
+    ObjectNode* footLeft = new ObjectNode();
+    footLeft = buildCube();
+    footLeft->setTranslate(-0.50 ,-1.18 ,0.00 );
+    footLeft->setScale(1.47 ,0.15 ,1.36 );
+    ObjectNode* footRight = new ObjectNode();
+    footRight = buildCube();
+    footRight->setTranslate(-0.45 ,-0.88 ,0.00 );
+    footRight->setScale(1.47 ,0.15 ,1.36 );
+
+    //Assigning children to parents.
+
+    neck->addChild(head);
+
+    //Adding hands to the Arms
+    armLeft->addChild(handLeft);
+    armRight->addChild(handRight);
+
+    //Adding feet to the legs
+    legLeft->addChild(footLeft);
+    legRight->addChild(footRight);
+
+    torso->addChild(neck);
+    //Adding Legs and Arms to the torso
+    torso->addChild(armLeft);
+    torso->addChild(armRight);
+    torso->addChild(legLeft);
+    torso->addChild(legRight);
+
+    //Add Torso to the lObject
+    lObject->addChild(torso);
 
     // Only do this if you add vertices, normals or faces to the lObject itself (not required)
     // Process the vertex, normal and face data just added to the object
