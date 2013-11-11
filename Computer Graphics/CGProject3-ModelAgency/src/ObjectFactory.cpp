@@ -167,26 +167,79 @@ ObjectNode* ObjectFactory::buildSphere(int pSlices, int pStacks)
     ObjectNode* lObject = new ObjectNode();
     lObject->setName(QString("Sphere %1").arg(lsSphereCount));
     lsSphereCount++;
-
-    // TODO: Create a node object for a unit sphere using the subdivision parameters above
-    //    - The south pole should be at Y = -1 and the north pole at Y = 1
-    //    - The radius of the sphere should be 1
-    //    - See buildCube for an example of how to use the ObjectNode object lObject
-    //    - Use addVertex, addNormal and addTriangle
-    //    - Be sure to leave in the allocation above and the call to parseRawData() below
-    //    - Your vertices must wind counter-clockwise and normals must point outwards
-
-    // Process the vertex, normal and face data just added to the object
-
+    float x;
+    float y;
+    float z;
+    float incTheta = M_PI*2.0/pSlices;
+    float incPhi = M_PI/pStacks;
     float theta = 0;
-    float phi = 0;
-    lObject->addVertex(0,1,0);//Vertex 1: The North Pole
-    lObject->addVertex(0,-1,0);//Vertex 2: The South Pole
+    float phi = incPhi;
 
-    for(int i = 0; i < pStacks; i++){
+    int topVert1 = pSlices+1;
+    int topVert2 = pSlices+2;
+    int bottomVert1 = 1;
+    int bottomVert2 = 2;
 
+    //North Pole
+    lObject->addVertex(0,1,0);
+    lObject->addNormal(0,1,0);
+
+    //adding the verticies from top to bottom
+    for(int i = 0; i < pStacks-1; i++){
+        y = cos(phi);
+            for(int j=0; j<pSlices;j++){
+                x = fabs(sin(phi))*cos(theta);
+                z = fabs(sin(phi))*sin(theta);
+                lObject->addVertex(x,y,z);
+                lObject->addNormal(x,y,z);
+                theta += incTheta;
+        }
+        phi += incPhi;
     }
 
+    //South Pole
+    lObject->addVertex(0,-1,0);
+    lObject->addNormal(0,-1,0);
+
+    int layer = 0;
+    for(int i = 1; i < pStacks-1; i++){
+        for(int j = 1; j<pSlices; j++){
+            lObject->addTriangle(bottomVert1, bottomVert2, topVert1,bottomVert1, bottomVert2, topVert1);
+            lObject->addTriangle(bottomVert2,topVert1,topVert2,bottomVert2,topVert1,topVert2);
+
+            topVert1++;
+            topVert2++;
+            bottomVert1++;
+            bottomVert2++;
+        }
+
+        lObject->addTriangle(bottomVert1, (layer*pSlices + 1), topVert1, bottomVert1, (layer*pSlices + 1), topVert1);
+        lObject->addTriangle((layer*pSlices+1), topVert1,bottomVert2, (layer*pSlices+1), topVert1, bottomVert2);
+
+        layer++;
+        topVert1++;
+        topVert2++;
+        bottomVert1++;
+        bottomVert2++;
+    }
+
+    int topVert = topVert2-1;
+    topVert1 = topVert - pSlices;
+    topVert2 = topVert1+1;
+    bottomVert1 = 1;
+    bottomVert2 = 1;
+
+    for(int i = 1; i < pSlices; i++){
+        lObject->addTriangle(0,bottomVert1, bottomVert2, 0, bottomVert1, bottomVert2);
+        lObject->addTriangle(topVert, topVert1, topVert2, topVert, topVert1, topVert2);
+        topVert1++;
+        topVert2++;
+        bottomVert1++;
+        bottomVert2++;
+    }
+
+    lObject->addTriangle(0, bottomVert1, 1, 0 , bottomVert1, 1);
+    lObject->addTriangle(topVert, topVert1, topVert - pSlices, topVert, topVert1, topVert - pSlices);
 
     if(!lObject->parseRawData())
     {
@@ -212,6 +265,41 @@ ObjectNode* ObjectFactory::buildSculpture()
     base->setScale(2.35,0.05,2.35);
     //Support Structures
 
+    ObjectNode *pole1[10];
+    for(int i = 1; i <=10 ; i++){
+        pole1[i] = buildCube();
+        pole1[i]->setTranslate(0.07*i,2.06,-0.08*i);
+        pole1[i]->setRotate(-42,0,0.01,0);
+        pole1[i]->setScale(0.11,0.08,0.02);
+        lObject->addChild(pole1[i]);
+    }
+
+    ObjectNode *pole2[10];
+    for(int i = 1; i <=10; i++){
+        pole2[i] = buildCube();
+        pole2[i]->setTranslate(-0.11*i,2.06,-0.10*i);
+        pole2[i]->setRotate(47,0,0.01,0);
+        pole2[i]->setScale(0.11,0.08,0.02);
+        lObject->addChild(pole2[i]);
+    }
+
+    ObjectNode *pole3[10];
+    for(int i = 1; i <=10; i++){
+        pole3[i] = buildCube();
+        pole3[i]->setTranslate(-0.12*i,2.06,0.12*i);
+        pole3[i]->setRotate(-42,0,0.01,0);
+        pole3[i]->setScale(0.11,0.08,0.02);
+        lObject->addChild(pole3[i]);
+    }
+
+    ObjectNode *pole4[10];
+    for(int i = 1; i <=10; i++){
+        pole4[i] = buildCube();
+        pole4[i]->setTranslate(0.12*i,2.06,0.12*i);
+        pole4[i]->setRotate(46,0,0.01,0);
+        pole4[i]->setScale(0.11,0.08,0.02);
+        lObject->addChild(pole4[i]);
+    }
 
     //Bell Connector
     ObjectNode *connector;
