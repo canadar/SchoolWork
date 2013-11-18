@@ -244,9 +244,15 @@ inline void ObjectNode::interpolateFrameValues(float* pPrevTrans, float* pNextTr
     //       and store the results in pInterp.  Use prevFrame and nextFrame to compute
     //       your 'alpha' value for interpolation
 
-    // TODO: Remove these lines once you have finished the above task
-    memcpy(pInterp, pNextTrans, 9*sizeof(float));
-    Q_UNUSED(pPrevTrans); Q_UNUSED(pFrameNumber); Q_UNUSED(pPrevFrame); Q_UNUSED(pNextFrame);
+    uint32_t delta = pNextFrame - pPrevFrame;
+    uint32_t alpha = pFrameNumber/delta;
+    float tmp = *pPrevTrans*(1-alpha) + *pNextTrans*alpha;
+
+
+    for(int i =0; i < 9; i++){
+        tmp = *pPrevTrans*(1-alpha) + *pNextTrans*alpha;
+        pInterp[i] = 0;
+    }
 }
 
 inline float* ObjectNode::makeKeyframeValues() const

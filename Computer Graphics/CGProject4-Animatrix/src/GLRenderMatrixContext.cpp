@@ -169,27 +169,21 @@ void GLRenderMatrixContext::pose(CameraPose* pPose)
 // Transform the view matrix
 void GLRenderMatrixContext::translateView(double pTx, double pTy, double pTz)
 {
-    Q_UNUSED(pTx); Q_UNUSED(pTy); Q_UNUSED(pTz); // TODO: Remove this line
-    // TODO: apply a translation to the VIEW matrix (use QMatrix4x4's translate(...) method)
-
+    mViewMatrix.translate(pTx,pTy,pTz);
     // Pass the new matrix to OpenGL
     if(mAutoPassToGL) passViewToOpenGL(mShader);
 }
 
 void GLRenderMatrixContext::rotateView(double pAngleInDegrees, double pRx, double pRy, double pRz)
 {
-    Q_UNUSED(pAngleInDegrees); Q_UNUSED(pRx); Q_UNUSED(pRy); Q_UNUSED(pRz); // TODO: Remove this line
-    // TODO: apply a rotation to the VIEW matrix (use QMatrix4x4's rotate(...) method)
-
+    mViewMatrix.rotate(pAngleInDegrees,pRx,pRy,pRz);
     // Pass the new matrix to OpenGL
     if(mAutoPassToGL) passViewToOpenGL(mShader);
 }
 
 void GLRenderMatrixContext::scaleView(double pSx, double pSy, double pSz)
 {
-    Q_UNUSED(pSx); Q_UNUSED(pSy); Q_UNUSED(pSz); // TODO: Remove this line
-    // TODO: apply a scale to the VIEW matrix (use QMatrix4x4's scale(...) method)
-
+    mViewMatrix.scale(pSx,pSy,pSz);
     // Pass the new matrix to OpenGL
     if(mAutoPassToGL) passViewToOpenGL(mShader);
 }
@@ -197,27 +191,21 @@ void GLRenderMatrixContext::scaleView(double pSx, double pSy, double pSz)
 // Apply one of the three basic transformations to the model matrix
 void GLRenderMatrixContext::translate(double pTx, double pTy, double pTz)
 {
-    Q_UNUSED(pTx); Q_UNUSED(pTy); Q_UNUSED(pTz); // TODO: Remove this line
-    // TODO: apply a translation to the MODEL matrix (use QMatrix4x4's translate(...) method)
-
+    mModelMatrix.translate(pTx, pTy, pTz);
     // Pass the new matrix to OpenGL
     if(mAutoPassToGL) passModelToOpenGL(mShader);
 }
 
 void GLRenderMatrixContext::rotate(double pAngleInDegrees, double pRx, double pRy, double pRz)
 {
-    Q_UNUSED(pAngleInDegrees); Q_UNUSED(pRx); Q_UNUSED(pRy); Q_UNUSED(pRz); // TODO: Remove this line
-    // TODO: apply a rotation to the MODEL matrix (use QMatrix4x4's rotate(...) method)
-
+    mModelMatrix.rotate(pAngleInDegrees,pRx,pRy,pRz);
     // Pass the new matrix to OpenGL
     if(mAutoPassToGL) passModelToOpenGL(mShader);
 }
 
 void GLRenderMatrixContext::scale(double pSx, double pSy, double pSz)
 {
-    Q_UNUSED(pSx); Q_UNUSED(pSy); Q_UNUSED(pSz); // TODO: Remove this line
-    // TODO: apply a scale to the MODEL matrix (use QMatrix4x4's scale(...) method)
-
+    mModelMatrix.scale(pSx,pSy,pSz);
     // Pass the new matrix to OpenGL
     if(mAutoPassToGL) passModelToOpenGL(mShader);
 }
