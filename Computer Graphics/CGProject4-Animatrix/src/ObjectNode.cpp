@@ -240,18 +240,11 @@ void ObjectNode::loadFrame(uint32_t pFrameNumber)
 inline void ObjectNode::interpolateFrameValues(float* pPrevTrans, float* pNextTrans, float* pInterp,
                                                int pFrameNumber, uint32_t pPrevFrame, uint32_t pNextFrame)
 {
-    // TODO: combine the values int prevTrans and nextTrans using linear interpolation
-    //       and store the results in pInterp.  Use prevFrame and nextFrame to compute
-    //       your 'alpha' value for interpolation
-
-    uint32_t delta = pNextFrame - pPrevFrame;
-    uint32_t alpha = pFrameNumber/delta;
-    float tmp = *pPrevTrans*(1-alpha) + *pNextTrans*alpha;
-
+    float delta = pNextFrame - pPrevFrame;
+    float alpha = (pFrameNumber-pPrevFrame)/delta;
 
     for(int i =0; i < 9; i++){
-        tmp = *pPrevTrans*(1-alpha) + *pNextTrans*alpha;
-        pInterp[i] = 0;
+        pInterp[i] = pPrevTrans[i]*(1-alpha) + pNextTrans[i]*alpha;
     }
 }
 
