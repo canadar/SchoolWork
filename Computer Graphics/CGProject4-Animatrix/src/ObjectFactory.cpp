@@ -333,6 +333,7 @@ ObjectNode* ObjectFactory::buildHumanoidWalk()
 
     lObject->setTranslate(0.0, 0.2, 0.0);
     lObject->setScale(0.8, 0.8, 0.8);
+    lObject->setKeyframe(0);
 
     return lObject;
 }
@@ -422,6 +423,7 @@ ObjectNode* ObjectFactory::buildHumanoidOther()
 
     lObject->setTranslate(0.0, 0.2, 0.0);
     lObject->setScale(0.8, 0.8, 0.8);
+
 
     return lObject;
 }
